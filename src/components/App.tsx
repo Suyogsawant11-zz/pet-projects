@@ -1,7 +1,6 @@
 import * as React from 'react';
 import ws from '../utils/websockets';
 import * as moment from 'moment'
-import '../static/css/app.css'
 
 const STOCK_FETCHING_URL = 'ws://stocks.mnet.website'
 const STATUS = {
@@ -16,6 +15,8 @@ const STATUS_TO_CLASS_MAP = {
 }
 
 class App extends React.Component<any, any> {
+
+  private _updateLastUpdatedStatus:any
 
   constructor(props){
     super(props)
@@ -50,20 +51,20 @@ class App extends React.Component<any, any> {
 
     // This is totlay uncessary - but we are receiving duplicate copies of data with same name, so filtering it out, in case of clean data we can avoid calling this function totally
     let marketData = this.removeDuplicates(data)
-    
+    let newData = [] // New enrteis will get pushed 
     let { markets } = this.state
-    
-    let newData = marketData.map((freshData)=>{
+
+    marketData.forEach((freshData)=>{
       // destructuring new received data into Name and its price
       let [stockOf, price] = freshData
-      let roundedPrice = price.toFixed(2)
+      let roundedPrice = +price.toFixed(2)
       
       // Set default state of newly received data
       let dataToPush = { 
           stockOf,
           price:roundedPrice,
           status:STATUS.DEFAULT,
-          updated:{ time:moment(), display: moment().fromNow() }
+          updated:{ time:moment(), display: null }
         }
 
       // Cross-check if its already in existing one's 
@@ -71,7 +72,7 @@ class App extends React.Component<any, any> {
 
       if(filteredIndex>-1){
         // If exist then pop it out from state data
-        let filteredData = markets.splice(filteredIndex,1)[0]
+        let filteredData = markets[filteredIndex]
         let status = filteredData.status,
             updated = filteredData.updated
 
@@ -79,45 +80,58 @@ class App extends React.Component<any, any> {
           if(price!==filteredData.price){
             status = price>filteredData.price?STATUS.UP:STATUS.DOWN
             updated = {
-              display:moment(filteredData.updated.time).fromNow(),
               time:moment(),
             }
           }
 
-        dataToPush = {
-          ...filteredData,
-          price:roundedPrice,
-          status,
-          updated,
-        }
-      }
-
-      return dataToPush
-
-    })
-
-    markets = markets.map(d=>{
-      return  {
-          ...d,
-          updated:{
-            ...d.updated,
-            display:d.updated.time.fromNow(),
+          markets[filteredIndex] = {
+            ...filteredData,
+            price:roundedPrice,
+            status,
+            updated,
           }
-        }
+        
+        return
+      }
+      
+      newData.push(dataToPush)
+
     })
 
-    let sortedMarketData = this.sortMarketData([...markets, ...newData])
+    if(this._updateLastUpdatedStatus){
+      clearInterval(this._updateLastUpdatedStatus)
+      this._updateLastUpdatedStatus = null
+    }
 
-    this.setState({ markets:sortedMarketData })
+    this.updateMarketData([...markets, ...newData])
   }
 
-  sortMarketData(data){
-    return data.sort((data1,data2)=>{
-      if(data1.price < data2.price) return -1
+  updateMarketData(data){
 
-      if(data1.price > data2.price) return 1
+    let updatedMarketData = this.updateLastUpdateTime(data)
+
+    this.setState({ markets:updatedMarketData },()=>{
       
-      return 0
+      // Case where we don not receive any udpates from server - still we will handle last updated time of stocks
+      if(!this._updateLastUpdatedStatus){
+        
+        this._updateLastUpdatedStatus = setInterval(()=>{
+          this.updateMarketData(this.state.markets)
+        },60000)
+      }
+
+    })
+  }
+
+  updateLastUpdateTime=(marketData)=>{
+    return marketData.map((data)=>{
+      return {
+          ...data,
+          updated:{
+            ...data.updated,
+            display:data.updated.time.fromNow(),
+          }
+        }
     })
   }
 
@@ -142,8 +156,8 @@ class App extends React.Component<any, any> {
           <table className="table table-hover" > 
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Price</th>
+              <th>Symbol</th>
+              <th>LTP</th>
               <th>last updated</th>
             </tr>
           </thead>
