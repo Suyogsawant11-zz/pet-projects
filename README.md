@@ -6,6 +6,8 @@ Its displays live stock exchange data with detail information along with price u
 To run the project following things is required in local:
 node, npm, yarn
 
+Once you clone this repo - kinldy switch to "stock-exchange-app" branch (as this repo consist of many pet projects) then following steps:
+
 Run 'yarn' and after all dependencies get resolved run 'yarn start' (it will start development server with Hot reloading)
 
 
