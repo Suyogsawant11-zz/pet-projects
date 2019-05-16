@@ -7,7 +7,7 @@ import {
   WS_MESSAGES,
 } from '../constants/constants'
 import ws from '../utils/websockets';
-import StockTable from './StockTable'
+import StockTable from './StocksTable'
 import {IState, IReceivedRawDataChunk, IMarket, IPrice} from '../InterfacePool'
 
 // Moment import + custom config for calendar
@@ -71,7 +71,7 @@ class App extends React.Component<any, IState> {
             current:roundedPrice,
             open:roundedPrice,
             low:roundedPrice,
-            high:null,
+            high:roundedPrice,
             change:0, changeInPercent:0,
             stack:[roundedPrice],
           },
@@ -143,8 +143,11 @@ class App extends React.Component<any, IState> {
     
     let { current, low, high } = price, change, changeInPercent,divider 
 
-    low = low<=currentPrice? low : currentPrice
-    high = high>currentPrice? high : currentPrice
+    if(current!==currentPrice){
+      low = low<=currentPrice? low : currentPrice
+      high = high>currentPrice? high : currentPrice
+    }
+
 
     // Change in range and percentage as compared last update value
     change = +(currentPrice-current).toFixed(2)

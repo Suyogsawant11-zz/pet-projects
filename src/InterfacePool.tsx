@@ -6,7 +6,7 @@ export type IPrice = {
     current:number
     open:number
     low:number
-    high:number|null
+    high:number
     change:number
     changeInPercent:number
     stack:number[]

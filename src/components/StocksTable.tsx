@@ -33,7 +33,7 @@ function getRows(markets):JSX.Element[]{
     })
   }
 
-function StockTable({marketData}){
+function StocksTable({marketData}){
 
     let stockRows = getRows(marketData)
     let headers = getHeader()
@@ -49,4 +49,4 @@ function StockTable({marketData}){
 }
 
 
-export default Loading(StockTable)
+export default Loading(StocksTable)
