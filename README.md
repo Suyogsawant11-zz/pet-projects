@@ -10,7 +10,8 @@ Key points:
 4. React-sparlines is used for handling sparlines
 5. Moment.js is used to handle last update time of received data
 6. Bootstartap us used for markup/style prupose (there are lot of better options apart from this)
-7. Background color is handled as Red or Green as per price fall or rise of stocks  
+7. Background color is handled as Red or Green as per price fall or rise of stocks
+8. Hot reloading - increases development time
 
 
 App displays detail information of received stocks data:
@@ -22,3 +23,8 @@ App displays detail information of received stocks data:
 6. Change - difference in amounts of newly received data along with past last udpated data
 7. Change(%) -	change difference in percentage
 8. Today - specified last updated time
+
+To run the project following things is required in local:
+node, npm, yarn
+
+Run yarn and after all dependencies get resolved run yarn start (it will start development server with Hot reloading)
