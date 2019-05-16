@@ -24,7 +24,7 @@ function getRows(markets):JSX.Element[]{
           <td>{`${row.price.changeInPercent} %`}</td>
           <td>
             <Sparklines data={row.price.stack} >
-              <SparklinesLine style={{ stroke: "#004085", strokeWidth: "2", fill: "none" }} />
+                <SparklinesLine style={{ strokeWidth: 3, stroke: "#336aff", fill: "none" }} />
             </Sparklines>
           </td>
           <td>{row.updated.display}</td>

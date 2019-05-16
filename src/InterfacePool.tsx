@@ -27,3 +27,8 @@ export interface IState {
     connectionFormed:boolean
     markets?: IMarket[]
 }
+
+export interface IErrorState {
+    hasError:boolean
+    error?:string
+}

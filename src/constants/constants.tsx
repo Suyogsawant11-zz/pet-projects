@@ -31,7 +31,12 @@ export const TABLE_HEADERS = [
   'High',
   'Low',
   'Change',
-  'Change',
+  'Change (%)',
   'Today',
   'last updated',
 ]
+
+export const WS_MESSAGES = {
+  connectionFormed:'Connection established',
+  error:'Error occured in Websocket connection',
+}

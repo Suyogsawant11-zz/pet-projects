@@ -4,6 +4,7 @@ import {
   STATUS, 
   SPARK_LINES_OF_STACK, 
   MOMENT_CUSTOMIZAITON, 
+  WS_MESSAGES,
 } from '../constants/constants'
 import ws from '../utils/websockets';
 import StockTable from './StockTable'
@@ -30,6 +31,11 @@ class App extends React.Component<any, IState> {
     ws.setConnection(STOCKS_FETCHING_URL)
     ws.onOpen(this.onHandshake.bind(this))
     ws.onMessage(this.handleMarketData.bind(this))
+    ws.onError(this.handleError.bind(this))
+  }
+
+  handleError():void{
+    throw new Error(WS_MESSAGES.error)
   }
 
   onHandshake():void{
@@ -192,11 +198,12 @@ class App extends React.Component<any, IState> {
   }
 
   render() {
-    let { markets, isLoading } = this.state
+    let { markets, isLoading, connectionFormed } = this.state
    
     return (
       <div className="card">
         <h5 className="card-header">Stocks App</h5>
+        {connectionFormed && isLoading && (<div className="card-body">{WS_MESSAGES.connectionFormed}</div>)}
         <div className="card-body">
           <StockTable marketData={markets} isLoading={isLoading} />
         </div>
