@@ -2,14 +2,15 @@ import * as React from 'react';
 import { Sparklines, SparklinesLine } from 'react-sparklines';
 import {STOCKS_FETCHING_URL, STATUS, STATUS_TO_CLASS_MAP, SPARK_LINES_OF_STACK, MOMENT_CUSTOMIZAITON} from '../constants/constants'
 import ws from '../utils/websockets';
+import {IState, IReceivedRawDataChunk, IMarket, IPrice} from '../InterfacePool'
 
 // Moment import + custom config for calendar
 import * as moment from 'moment'
   moment.locale('en', MOMENT_CUSTOMIZAITON);
   
-class App extends React.Component<any, any> {
+class App extends React.Component<any, IState> {
 
-  private _updateLastUpdatedStatus:any
+  private _updateLastUpdatedStatus:any|null
 
   constructor(props){
     super(props)
@@ -26,11 +27,11 @@ class App extends React.Component<any, any> {
     ws.onMessage(this.handleMarketData.bind(this))
   }
 
-  onHandshake(){
+  onHandshake():void{
     this.setState({ connectionFormed:true })
   }
 
-  removeDuplicates(data):any{
+  removeDuplicates(data:IReceivedRawDataChunk[]):any[]{
     let filteredData = {}
       
       data.forEach(d => {
@@ -40,21 +41,21 @@ class App extends React.Component<any, any> {
     return [...Object.values(filteredData)]
   }
 
-  handleMarketData(data){
+  handleMarketData(data:IReceivedRawDataChunk[]):void{
 
-    // This is totllay uncessary - but we are receiving duplicate copies of data with same name, so filtering it out, in case of clean data we can avoid calling this function totally
+    // This is totally uncessary - but we are receiving duplicate copies of data with same name, so filtering it out, in case of clean data we can avoid calling this function totally
     let marketData = this.removeDuplicates(data)
     let newData = [] // New entries will get pushed 
     let { markets } = this.state
 
-    marketData.forEach((freshData)=>{
+    marketData.forEach((freshData:IReceivedRawDataChunk)=>{
       // destructuring new received data into Name and its Raw-price
-      let [stockOf, rawPrice] = freshData
+      let [symbol, rawPrice] = freshData
       let roundedPrice = +rawPrice.toFixed(2)
       
       // Set default state of newly received data
       let dataToPush = { 
-          stockOf,
+          symbol,
           price:{
             current:roundedPrice,
             open:roundedPrice,
@@ -68,17 +69,16 @@ class App extends React.Component<any, any> {
         }
 
       // Cross-check if its already in existing one's 
-      let filteredIndex = markets.findIndex((data)=> stockOf === data.stockOf )
+      let filteredIndex = markets.findIndex((data:IMarket)=> symbol === data.symbol )
 
       if(filteredIndex>-1){
         // If exist then pop it out from state data
         let filteredData = markets[filteredIndex]
         let {status, updated, price} = filteredData
-        let {current, stack} = price
 
           // updates its state of price in comparision from previous ones along with new set of current updated status
-          if(roundedPrice!== current){
-            status = roundedPrice> current? STATUS.UP : STATUS.DOWN
+          if(roundedPrice!== price.current){
+            status = roundedPrice> price.current? STATUS.UP : STATUS.DOWN
 
             markets[filteredIndex] = {
               ...filteredData,
@@ -93,16 +93,9 @@ class App extends React.Component<any, any> {
             }
           }
 
-          // Push into stack for SparkLines
-          stack.push(roundedPrice)  
-          markets[filteredIndex] = {
-            ...markets[filteredIndex],
-            price:{
-              ...markets[filteredIndex].price,
-              stack:stack.splice(-SPARK_LINES_OF_STACK),
-            }
-          }
-
+          // Push newData to stack for SparkLines
+          markets[filteredIndex] = this.updateDatForSparLine(roundedPrice,markets[filteredIndex])
+          
         return
       }
       
@@ -118,10 +111,26 @@ class App extends React.Component<any, any> {
     this.updateMarketData([...markets, ...newData])
   }
 
+  updateDatForSparLine=(newPrice:number,marketData:IMarket):IMarket=>{
+  
+    let {stack} = marketData.price
+
+      stack.push(newPrice)
+
+    return {
+      ...marketData,
+      price:{
+        ...marketData.price,
+        stack:stack.splice(-SPARK_LINES_OF_STACK),
+      }
+    }
+
+  }
+
   // Will take care of Pricing update
-  handlePricingData(currentPrice, price){
+  handlePricingData(currentPrice:number, price:IPrice):IPrice{
     
-    let { current, low, high, stack } = price, change, changeInPercent,divider 
+    let { current, low, high } = price, change, changeInPercent,divider 
 
     low = low<=currentPrice? low : currentPrice
     high = high>currentPrice? high : currentPrice
@@ -138,7 +147,7 @@ class App extends React.Component<any, any> {
     }
   }
 
-  updateMarketData(data){
+  updateMarketData(data:IMarket[]):void{
 
     let updatedMarketData = this.updateLastUpdateTime(data)
 
@@ -155,8 +164,8 @@ class App extends React.Component<any, any> {
     })
   }
 
-  updateLastUpdateTime=(marketData)=>{
-    return marketData.map((data)=>{
+  updateLastUpdateTime=(marketData:IMarket[]):IMarket[]=>{
+    return marketData.map((data:IMarket):IMarket=>{
 
       let t=moment(),
           pd=data.updated.time,
@@ -183,7 +192,7 @@ class App extends React.Component<any, any> {
     return markets.map((row,index)=>{
       return (
         <tr className={STATUS_TO_CLASS_MAP[row.status]['class']} key={index}>
-          <td>{row.stockOf}</td>
+          <td>{row.symbol}</td>
           <td>{row.price.current}</td>
           <td>{row.price.open}</td>
           <td>{row.price.high}</td>
