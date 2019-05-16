@@ -3,6 +3,14 @@
 This App is developed by using React along with Typescript and Websockets.
 Its displays live stock exchange data with detail information along with price update in sparlines.
 
+To run the project following things is required in local:
+node, npm, yarn
+
+Run 'yarn' and after all dependencies get resolved run 'yarn start' (it will start development server with Hot reloading)
+
+
+
+
 Key points:
 1. Have completely seperate out websocket methods into different independent util so that it can get re-used in other projects too.
 2. Error handling incase of Websocket raises error - is handled by React-ErrorBoundary
@@ -24,7 +32,3 @@ App displays detail information of received stocks data:
 7. Change(%) -	change difference in percentage
 8. Today - specified last updated time
 
-To run the project following things is required in local:
-node, npm, yarn
-
-Run yarn and after all dependencies get resolved run yarn start (it will start development server with Hot reloading)
