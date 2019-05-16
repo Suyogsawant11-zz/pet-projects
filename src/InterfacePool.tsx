@@ -1,8 +1,5 @@
 import { Moment } from "moment";
 
-// let marketDataEntry: [string,number]
-
-// export type marketData = marketDataEntry[]
 export type IReceivedRawDataChunk = [string,number]
 
 export type IPrice = {
