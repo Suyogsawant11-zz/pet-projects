@@ -18,7 +18,7 @@ const dummyData = [
 const websocket:any = window['WebSocket']
 
 let ws:any = null
-
+var f = 0
 export default {
     setConnection:(URL:string)=>{
         ws = new websocket(URL)
@@ -35,9 +35,10 @@ export default {
     },
     onMessage:(cb?:any)=>{
         ws.onmessage = (res:any)=>{
-            cb(dummyData)
-            ws.close()
-            // cb & cb( JSON.parse(res.data || {}))
+            // // cb(dummyData)
+            // f++
+            // f==2 && ws.close()
+            cb & cb( JSON.parse(res.data || {}))
         }
     },
     onError:(cb?:any)=>{
