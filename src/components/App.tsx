@@ -1,7 +1,12 @@
 import * as React from 'react';
-import { Sparklines, SparklinesLine } from 'react-sparklines';
-import {STOCKS_FETCHING_URL, STATUS, STATUS_TO_CLASS_MAP, SPARK_LINES_OF_STACK, MOMENT_CUSTOMIZAITON} from '../constants/constants'
+import {
+  STOCKS_FETCHING_URL,
+  STATUS, 
+  SPARK_LINES_OF_STACK, 
+  MOMENT_CUSTOMIZAITON, 
+} from '../constants/constants'
 import ws from '../utils/websockets';
+import StockTable from './StockTable'
 import {IState, IReceivedRawDataChunk, IMarket, IPrice} from '../InterfacePool'
 
 // Moment import + custom config for calendar
@@ -151,7 +156,7 @@ class App extends React.Component<any, IState> {
 
     let updatedMarketData = this.updateLastUpdateTime(data)
 
-    this.setState({ markets:updatedMarketData },()=>{
+    this.setState({ markets:updatedMarketData, isLoading:false },()=>{
       
       // Case where we do not receive any udpates from server - still we will handle last updated time of stocks
       if(!this._updateLastUpdatedStatus){
@@ -186,50 +191,15 @@ class App extends React.Component<any, IState> {
     })
   }
 
-  getStockRows(){
-    let { markets } = this.state
-
-    return markets.map((row,index)=>{
-      return (
-        <tr className={STATUS_TO_CLASS_MAP[row.status]['class']} key={index}>
-          <td>{row.symbol}</td>
-          <td>{row.price.current}</td>
-          <td>{row.price.open}</td>
-          <td>{row.price.high}</td>
-          <td>{row.price.low}</td>
-          <td>{row.price.change}</td>
-          <td>{`${row.price.changeInPercent} %`}</td>
-          <td>
-            <Sparklines data={row.price.stack} >
-              <SparklinesLine style={{ stroke: "#00bdcc", strokeWidth: "2", fill: "none" }} />
-            </Sparklines>
-          </td>
-          <td>{row.updated.display}</td>
-        </tr>
-      )
-    })
-  }
-
   render() {
-    let stockRows = this.getStockRows()
+    let { markets, isLoading } = this.state
+   
     return (
-      <div>
-          <table className="table table-hover" > 
-          <thead>
-            <tr>
-              <th>Symbol</th>
-              <th>LTP</th>
-              <th>Open</th>
-              <th>High</th>
-              <th>Low</th>
-              <th>Change</th>
-              <th>Change (%)</th>
-              <th>Today</th> {/* based on last 15 updations */}
-              <th>last updated</th>
-            </tr>
-          </thead>
-            <tbody>{stockRows}</tbody>
-          </table>
+      <div className="card">
+        <h5 className="card-header">Stocks App</h5>
+        <div className="card-body">
+          <StockTable marketData={markets} isLoading={isLoading} />
+        </div>
       </div>
     );
   }

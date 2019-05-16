@@ -8,9 +8,9 @@ export const STATUS = {
 }
 
 export const STATUS_TO_CLASS_MAP = {
-  UP:{ class:'success' },
-  DOWN:{ class:'danger' },
-  DEFAULT:{ class:'active' },
+  UP:{ class:'table-success' },
+  DOWN:{ class:'table-danger' },
+  DEFAULT:{ class:'table-light' },
 }
 
 export const SPARK_LINES_OF_STACK = 15  // sparklines will get rendered based on last N number of updations
@@ -23,3 +23,15 @@ export const MOMENT_CUSTOMIZAITON = {
         sameElse : 'd MMM LT'
     }
 }
+
+export const TABLE_HEADERS = [
+  'Symbol',
+  'LTP',
+  'Open',
+  'High',
+  'Low',
+  'Change',
+  'Change',
+  'Today',
+  'last updated',
+]
