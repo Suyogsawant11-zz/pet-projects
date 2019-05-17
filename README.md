@@ -14,14 +14,14 @@ Run 'yarn' and after all dependencies get resolved run 'yarn start' (it will sta
 
 
 Key points:
-1. Have completely seperate out websocket methods into different independent util so that it can get re-used in other projects too.
+1. Have completely seperate out websocket methods into independent util so that it can get re-used in other projects too.
 2. Error handling incase of Websocket raises error - is handled by React-ErrorBoundary
 3. HOC is used to handle loading state of Stock Table, as its even a recommended way
 4. React-sparlines is used for handling sparlines
 5. Moment.js is used to handle last update time of received data
 6. Bootstartap us used for markup/style prupose (there are lot of better options apart from this)
 7. Background color is handled as Red or Green as per price fall or rise of stocks
-8. Hot reloading - increases development time
+8. Hot reloading - decreases development time and effort
 
 
 App displays detail information of received stocks data:
